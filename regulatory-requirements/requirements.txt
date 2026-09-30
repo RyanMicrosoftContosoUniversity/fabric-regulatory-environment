@@ -1,0 +1,61 @@
+Generic Microsoft Fabric analysis notes
+
+Numbering is preserved for cross-references. Product assertions require the dated qualifications in the accompanying assessments. Entries 52-57 are reusable architecture-validation questions, not findings about an actual customer environment.
+
+1. Healthcare data solutions is cutoff on October 1 — only existing customers can deploy the managed solution after that, and support ends 31 December 2027
+2. Semantic models are unsupported in private link workspaces
+3. Workspace monitoring is unavailable under private link
+4. Copilot doesn't work with workspace level private link 
+5. No SQL FQDN to allow Databricks to access data in Fabric privately 
+6. Direct Lake can't cross a private link boundary, have to use a gateway and DirectQuery instead
+7. Workspace monitoring only retains for 30 days
+8. Deployment pipelines don't work in private link workspaces, so you need Git and fabric-cicd
+9. Item sharing doesn't work in private link workspaces, and existing shares break when you enable it
+10. Direct Lake on SQL in delegated identity mode runs as the item owner, so it bypasses OneLake security and collapses audit attribution
+11. Workspace Admins, Members and Contributors bypass OneLake security entirely
+12. DefaultReader grants ReadAll users broad access unless you narrow it
+13. The SQL analytics endpoint has to be switched to user's identity mode or OneLake security doesn't apply
+14. Roles granting ReadWrite can't carry row or column level security
+15. Nothing in Fabric records permission history, so you can't answer who had access on a past date
+16. SQL audit logs are off by default
+17. SQL audit is best effort and can drop events under high load, so it isn't a provably complete trail
+18. SQL audit files are readable by Admins, Members, Contributors and Viewers with Read All, and statement text contains PHI
+19. Direct Lake emits no SQL, so SQL audit can't see Direct Lake reads
+20. OneLake diagnostics attribute reads to the owner identity in delegated mode
+21. Audit predicate filtering happens before write, so excluded events are gone for good
+22. Predicate filtering only works on action groups you've already enabled
+23. Lineage is point in time only, with no history
+24. Verify the Purview/Exchange audit roles required for the chosen search, export, or cmdlet path; establish approved least-privilege access or central SOC evidence delivery
+25. Fabric admin REST APIs need Fabric admin or Tenant.Read.All
+26. Workspace monitoring and Log Analytics can't both be enabled in the same workspace
+27. Workspace monitoring ingestion can't be filtered by log type or category
+28. The monitoring Eventhouse is billed against capacity
+29. Power BI reports and Activator alerts over the monitoring database get throttled when capacity is throttled
+30. Sharing the monitoring database needs Member or Admin, not Contributor
+31. The monitoring Eventhouse is read only, and recreating a deleted one means waiting about 15 minutes
+32. Semantic models and reports aren't CMK supported, so a reporting workspace can't be CMK protected
+33. There's no workspace or domain scoped Conditional Access — it targets cloud resources, and the only scoping is by user group
+34. Fabric doesn't support continuous access evaluation
+35. Conditional Access needs Entra ID P1
+36. Fabric domains don't affect item visibility or access, so a domain isn't a security boundary
+37. Label policies, DLP policies and the unified audit log are all tenant scoped
+38. Purview Hub security insights moved to the OneLake catalog Govern tab, and that tab is unavailable under tenant private link
+39. The Capacity Metrics app doesn't support Private Link
+40. Spark starter pools are disabled under managed VNet, so sessions take 3 to 5 minutes to start
+41. Gateway allow-listing needs the Outbound Gateway Rules REST API when private links are enabled
+42. SQL database items aren't supported in private link workspaces
+43. OAP data connection rules are still preview
+44. Eventhouse RLS and third party engine enforcement are still preview
+45. Preview features are generally excluded from BAA scope
+46. Non-authorised third party engines are blocked rather than filtered
+47. OneLake doesn't guarantee table metadata is hidden — column names can show up in error messages
+48. The generic HIPAA/HITECH compliance page doesn't name Fabric
+49. De-identification isn't native to Fabric — it's a separate Azure Health Data Services service
+50. There's no official Microsoft Fabric TRE reference architecture; Azure TRE is a community supported accelerator
+51. There's no Microsoft published reference architecture or case study for PHI in Fabric
+52. Validate PHI-serving network restrictions, workspace memberships, source-layer policies, semantic-model RLS/OLS, and query identities; model-only restrictions are insufficient when consumers have independent broader source access
+53. Verify encryption and key coverage per reporting artifact; distinguish source workspace CMK, supported import-model Power BI BYOK, default encryption, and unsupported combinations
+54. Architecture comparisons must name applicable control-framework revisions, control identifiers, evidence, scope, and approved alternatives rather than relying on unsupported compliance assertions
+55. Compare complete workspace footprints using shared workspaces, studies, environments, per-study/environment multipliers, and separately counted recovery overhead; do not confuse per-unit counts with estate totals
+56. Version architecture assessments with an author/owner, as-of date, product sources, exact item variants, assumptions, and approved change history
+57. Verify approved staff/guest Conditional Access, any required Defender for Cloud Apps session policy, and sensitivity/protection-label assignments, including licenses, owners, and tests; required unavailable controls need approved alternatives or remain blockers
